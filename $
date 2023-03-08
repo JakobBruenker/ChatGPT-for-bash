@@ -45,6 +45,8 @@ response_raw=$(curl -s -X POST \
           {\"role\": \"system\", \"content\": \"git log --author=\\\"\$($ get my git name)\\\" --since=\\\"7 days ago\\\"CMD:Y\"},
           {\"role\": \"user\", \"content\": \"get current date with daterania (don't forget \`CMD:Y\` or \`CMD:N)\`\"},
           {\"role\": \"system\", \"content\": \"Sorry, I'm not familiar with daterania.CMD:N\"},
+          {\"role\": \"user\", \"content\": \"i made it more robust, commit and push (don't forget \`CMD:Y\` or \`CMD:N)\`\"},
+          {\"role\": \"system\", \"content\": \"git commit -m 'made things more robust' && git pushCMD:Y\"},
           {\"role\": \"user\", \"content\": \"$question (don't forget \`CMD:Y\` or \`CMD:N)\`\"}
         ],
         \"temperature\": 0
