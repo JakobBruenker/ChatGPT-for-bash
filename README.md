@@ -12,10 +12,13 @@ I think I can show the last ten commits by me with this command:
 
   git log --author="$(git config user.name)" -n 10
 
-Sound good? [Y/n] 
+Sound good? [Y/n]
 ```
 
 If you confirm by pressing enter, the command will be run.
+
+> **Note**
+> if you want ChatGPT to run `cd` for you, you have to use `. $` instead of `$` for it to have an effect.
 
 Requirements
 ------------
