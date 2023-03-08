@@ -1,0 +1,70 @@
+#!/usr/bin/env bash
+
+# Function to check user input
+function check_input {
+  read -r -p "Sound good? [Y/n] " input
+  case "$input" in
+    [yY][eE][sS]|[yY]|"")
+      eval "$response"
+      ;;
+    [nN][oO]|[nN])
+      exit 0
+      ;;
+    *)
+      check_input
+      ;;
+  esac
+}
+
+# Join the command line arguments into a single string
+question="$*"
+
+# Get the API key from the environment variable
+api_key="$OPENAI_API_KEY"
+
+# Check if question or API key is empty
+if [ -z "$question" ]; then
+  echo "Error: Please provide a question"
+  exit 1
+fi
+
+if [ -z "$api_key" ]; then
+  echo "Error: Please set the OPENAI_API_KEY environment variable"
+  exit 1
+fi
+
+# Make the request using curl
+response_raw=$(curl -s -X POST \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $api_key" \
+  -d "{
+        \"model\": \"gpt-3.5-turbo\",
+        \"messages\": [
+          {\"role\": \"system\", \"content\": \"Your task is to provide helpful bash commands that do what a user asks of you. You only provide a bash command that is likely to fulfill the user's request, without any other explanation or commentary. You will not use code blocks. You may delegate complex sub-commands expressed in natural language using \`$\`. For example:\\n\
+\\n\
+User: get my git commits from the last 7 days.\\n\
+You: git log --author=\\\"\$($ get my git name)\\\" --since=\\\"7 days ago\\\"\\n\
+\\n\
+If you cannot fulfill a request, you will answer with a one-line explanation followed by \`???\`. For example:\\n\
+\\n\
+User: get current date with daterania\\n\
+You: Sorry, I'm not familiar with daterania.???\\n\
+\\n\
+If your response is not a bash command for this or any other reason, it is very important that it ends with ???. However, if your response *is* a bash command, your response must not end with ???.\"},
+          {\"role\": \"user\", \"content\": \"$question\"}
+        ],
+        \"temperature\": 0
+      }"\
+  https://api.openai.com/v1/chat/completions)
+response=$(echo $response_raw | jq -r '.choices[0].message.content')
+
+# Print the response and ask for user input
+if [[ "${response: -3}" == "???" ]]; then
+  echo "${response::-3}" >&2
+  exit 1
+else
+  printf "I think I can $question with this command:\n\n  \033[1m\033[10m" >&2
+  echo $response >&2
+  printf "\033[0m\n" >&2
+  check_input
+fi
