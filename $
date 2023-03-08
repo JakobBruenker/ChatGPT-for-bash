@@ -63,7 +63,7 @@ if [[ "${response: -3}" == "???" ]]; then
   echo "${response::-3}" >&2
   exit 1
 else
-  printf "I think I can $question with this command:\n\n  \033[1m\033[10m" >&2
+  printf "I think I can do that with this command:\n\n  \033[1m\033[10m" >&2
   echo $response >&2
   printf "\033[0m\n" >&2
   check_input
