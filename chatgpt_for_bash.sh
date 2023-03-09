@@ -6,7 +6,7 @@ function check_input {
   case "$input" in
     [yY][eE][sS]|[yY]|"")
       history -s "$response"
-      eval '$response'
+      eval "$response"
       ;;
     [nN][oO]|[nN])
       exit 0
