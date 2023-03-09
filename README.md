@@ -8,7 +8,7 @@ Example:
 
 ```
 user@pc:~> ? show the last ten commits by me
-I think I can show the last ten commits by me with this command:
+I think I can do that with this command:
 
   git log --author="$(git config user.name)" -n 10
 
