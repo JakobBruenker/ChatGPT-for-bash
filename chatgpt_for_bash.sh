@@ -48,7 +48,7 @@ function check_no_command_input {
 function generate_command {
   json_chat_hist=()
   for ((i=0; i<${#chat_hist[@]}; i+=2)); do
-    json_chat_hist+=("{\"role\": \"user\", \"content\": \"${chat_hist[$i]}\"}, {\"role\": \"assistant\", \"content\": \"${chat_hist[$i+1]}\"},")
+    json_chat_hist+=("{\"role\": \"user\", \"content\": \"${chat_hist[$i]//\"/\\\"}\"}, {\"role\": \"assistant\", \"content\": \"${chat_hist[$i+1]//\"/\\\"}\"},")
   done
   # replace newlines with \n
   json_chat_hist_str=$(echo -n ${json_chat_hist[@]} | tr '\n' '\\n')
