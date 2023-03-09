@@ -42,6 +42,3 @@ export OPENAI_API_KEY=<your_api_key>
 ```
 You will also need `bash`, as well as `jq`, which is used to parse ChatGPT's
 JSON response. Your package manager should be able to provide it.
-
-You will probably also want put the `$` script into a directory that is in
-your `$PATH`.
