@@ -7,12 +7,12 @@ descriptions to ChatGPT, and have it generate bash commands for you.
 Example:
 
 ```
-user@pc:~> ? show the last ten commits by me
-I think I can do that with this command:
+user@pc:~> ? show the last ten commits by Tom
+I think I can do that with the following command:
 
-  git log --author="$(git config user.name)" -n 10
+  git log --author=Tom -n 10
 
-Sound good? [Y/n]
+Sound good? (Enter to accept, Ctrl-C to cancel, or just write more to refine your request)
 ```
 
 If you confirm by pressing enter, the command will be run.
