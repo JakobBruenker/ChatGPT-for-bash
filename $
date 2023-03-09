@@ -41,12 +41,12 @@ response_raw=$(curl -s -X POST \
         \"model\": \"gpt-3.5-turbo\",
         \"messages\": [
           {\"role\": \"system\", \"content\": \"Your task is to provide helpful bash commands that do what a user asks of you. You only provide a bash command that is likely to fulfill the user's request, without any other explanation or commentary. You will not use code blocks. You may delegate complex sub-commands expressed in natural language using \`\$($ <natural language command>)\`. If you cannot answer a prompt with a command, you will append \`CMD:N\` to the end of your response. It's very important that you append \`CMD:N\` if your response is not a command, and that you append \`CMD:Y\` if your response *is* a command.\"},
-          {\"role\": \"user\", \"content\": \"get my git commits from the last 7 days (don't forget \`CMD:Y\` or \`CMD:N)\`\"},
-          {\"role\": \"system\", \"content\": \"git log --author=\\\"\$($ get my git name)\\\" --since=\\\"7 days ago\\\"CMD:Y\"},
-          {\"role\": \"user\", \"content\": \"get current date with daterania (don't forget \`CMD:Y\` or \`CMD:N)\`\"},
-          {\"role\": \"system\", \"content\": \"Sorry, I'm not familiar with daterania.CMD:N\"},
-          {\"role\": \"user\", \"content\": \"i made it more robust, add current dir, commit and push (don't forget \`CMD:Y\` or \`CMD:N)\`\"},
-          {\"role\": \"system\", \"content\": \"git add . && git commit -m 'made things more robust' && git pushCMD:Y\"},
+          {\"role\": \"user\", \"content\": \"get my git commits from the last 7 days\"},
+          {\"role\": \"assistant\", \"content\": \"git log --author=\\\"\$($ get my git name)\\\" --since=\\\"7 days ago\\\"CMD:Y\"},
+          {\"role\": \"user\", \"content\": \"get current date with daterania\"},
+          {\"role\": \"assistant\", \"content\": \"Sorry, I'm not familiar with daterania.CMD:N\"},
+          {\"role\": \"user\", \"content\": \"i made it more robust, add current dir, commit and push\"},
+          {\"role\": \"assistant\", \"content\": \"git add . && git commit -m 'made things more robust' && git pushCMD:Y\"},
           {\"role\": \"user\", \"content\": \"$question (don't forget \`CMD:Y\` or \`CMD:N)\`\"}
         ],
         \"temperature\": 0
