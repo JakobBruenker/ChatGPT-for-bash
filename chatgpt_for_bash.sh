@@ -5,7 +5,8 @@ function check_input {
   read -r -p "Sound good? [Y/n] " input
   case "$input" in
     [yY][eE][sS]|[yY]|"")
-      eval "$response"
+      history -s "$response"
+      eval '$response'
       ;;
     [nN][oO]|[nN])
       exit 0

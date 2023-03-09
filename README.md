@@ -1,13 +1,13 @@
 ChatGPT for Bash
 ================
 
-This repository provides a script called `$`, which allows you to send natural
-language descriptions to ChatGPT, and have it generate bash commands for you.
+This repository provides a script which allows you to send natural language
+descriptions to ChatGPT, and have it generate bash commands for you.
 
 Example:
 
 ```
-user@pc:~> $ show the last ten commits by me
+user@pc:~> ? show the last ten commits by me
 I think I can show the last ten commits by me with this command:
 
   git log --author="$(git config user.name)" -n 10
@@ -17,8 +17,21 @@ Sound good? [Y/n]
 
 If you confirm by pressing enter, the command will be run.
 
+Usage
+-----
+
+The recommended usage is putting the following function in your `.bashrc` or `.bash_profile`:
+
+```bash
+function ? { source chatgpt_for_bash.sh; }
+```
+
+This requires that `chatgpt_for_bash.sh` is in your path; otherwise you can use the full path.
+
 > **Note**
-> if you want ChatGPT to run `cd` for you, you have to use `. $` instead of `$` for it to have an effect.
+> if you run the script directly rather than via `source`, some features won't
+> work, like adding the generated commands to your history and changing
+> directories.
 
 Requirements
 ------------
