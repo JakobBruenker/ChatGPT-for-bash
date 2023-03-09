@@ -7,10 +7,10 @@ descriptions to ChatGPT, and have it generate bash commands for you.
 Example:
 
 ```
-user@pc:~> ? show the last ten commits by Tom
+user@pc:~> ? show me my commits from the beginning of this month
 I think I can do that with the following command:
 
-  git log --author=Tom -n 10
+  git log --author="$(git config user.name)" --since="$(date +%Y-%m-01)"
 
 Sound good? (Enter to accept, Ctrl-C to cancel, or just write more to refine your request)
 ```
