@@ -54,7 +54,7 @@ response_raw=$(curl -s -X POST \
       }"\
   https://api.openai.com/v1/chat/completions)
 
-classified_response=$(echo $response_raw | jq -r '.choices[0].message.content')
+classified_response=$(echo "$response_raw" | jq -r '.choices[0].message.content')
 if [[ "$classified_response" =~ CMD..$ ]]; then
   class="${classified_response: -5}"
   response="${classified_response::-5}"
@@ -69,7 +69,7 @@ if [[ "$class" == "CMD:N" ]]; then
   exit 1
 else
   printf "I think I can do that with the following command:\n\n  \033[1m\033[10m" >&2
-  echo $response >&2
+  echo "$response" >&2
   printf "\033[0m\n" >&2
   check_input
 fi
