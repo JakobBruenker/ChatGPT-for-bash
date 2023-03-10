@@ -17,11 +17,17 @@ function bold_end {
 
 # Function to check user input when there was a command response
 function check_command_input {
-  read -r -p "Sound good? (Enter to accept, Ctrl-C to cancel, or just write more to refine your request)
-" __chatgpt_for_bash_input
+  echo "Sound good? (Enter to accept, Ctrl-C to cancel, or just write more to refine your request)" >&2
+  read __chatgpt_for_bash_input
   if [[ -z "$__chatgpt_for_bash_input" ]]; then
     move_cursor_up
-    history -s "$__chatgpt_for_bash_response"
+    if [[ -z "$ZSH_VERSION" ]]; then
+      # if bash
+      history -s "$__chatgpt_for_bash_response"
+    else
+      # if zsh
+      print -s "$__chatgpt_for_bash_response"
+    fi
     eval "$__chatgpt_for_bash_response"
   else
     __chatgpt_for_bash_chat_hist+=("$__chatgpt_for_bash_question" "$__chatgpt_for_bash_classified_response")
@@ -32,8 +38,8 @@ function check_command_input {
 
 # Function to check user input when there was no command response
 function check_no_command_input {
-  read -r -p "Press enter or Ctrl-C to cancel, or just write more to refine your request.
-" __chatgpt_for_bash_input
+  echo "Press enter or Ctrl-C to cancel, or just write more to refine your request." >&2
+  read __chatgpt_for_bash_input
   if [[ -z "$__chatgpt_for_bash_input" ]]; then
     move_cursor_up
   else
@@ -57,7 +63,7 @@ function generate_command {
     \"model\": \"gpt-3.5-turbo\",
     \"messages\": [
       {\"role\": \"system\", \"content\": \"Your task is to provide helpful bash commands that do what a user asks of you. \
-You only provide a bash command that is likely to fulfill the user's request, without any other explanation or commentary. \
+You only provide a $__chatgpt_for_bash_shell command that is likely to fulfill the user's request, without any other explanation or commentary. \
 You will not use code blocks. \
 If you cannot answer a prompt with a command, you will append \`CMD:N\` to the end of your response. \
 It's very important that you append \`CMD:N\` if your response is not a command, and that you append \`CMD:Y\` if your response *is* a command.\"},
@@ -83,7 +89,7 @@ It's very important that you append \`CMD:N\` if your response is not a command,
   __chatgpt_for_bash_classified_response=$(echo "$__chatgpt_for_bash_response_raw" | jq -r '.choices[0].message.content')
   if [[ "$__chatgpt_for_bash_classified_response" =~ CMD..$ ]]; then
     __chatgpt_for_bash_class="${__chatgpt_for_bash_classified_response: -5}"
-    __chatgpt_for_bash_response="${__chatgpt_for_bash_classified_response::-5}"
+    __chatgpt_for_bash_response="${__chatgpt_for_bash_classified_response%?????}"
   else
     __chatgpt_for_bash_class="null"
     __chatgpt_for_bash_response="$__chatgpt_for_bash_classified_response"
@@ -111,6 +117,14 @@ It's very important that you append \`CMD:N\` if your response is not a command,
     fi
   fi
 }
+
+# Find out what shell we're running in
+if [[ -n "$ZSH_VERSION" ]]; then
+  __chatgpt_for_bash_shell="zsh"
+else
+  # just use bash as fallback
+  __chatgpt_for_bash_shell="bash"
+fi
 
 # Join the command line arguments into a single string
 __chatgpt_for_bash_question="$*"

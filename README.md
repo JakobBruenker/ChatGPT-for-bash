@@ -2,7 +2,7 @@ ChatGPT for Bash
 ================
 
 This repository provides a script which allows you to send natural language
-descriptions to ChatGPT, and have it generate bash commands for you.
+descriptions to ChatGPT, and have it generate bash (or zsh) commands for you.
 
 Example:
 
@@ -26,7 +26,8 @@ If you confirm by pressing enter, the command will be run.
 Usage
 -----
 
-The recommended usage is putting the following function in your `.bashrc` or `.bash_profile`:
+The recommended usage is putting the following function in your `.bashrc`,
+`.bash_profile`, or `.zshrc`:
 
 ```bash
 function _ { source <path_to_repo>/chatgpt_for_bash.sh; }
@@ -50,5 +51,5 @@ You will need to provide your OpenAI API key via
 ```
 export OPENAI_API_KEY=<your_api_key>
 ```
-You will also need `bash`, as well as `jq`, which is used to parse ChatGPT's
-JSON response. Your package manager should be able to provide it.
+You will also need `bash` or `zsh`, as well as `jq`, which is used to parse
+ChatGPT's JSON response. Your package manager should be able to provide it.
