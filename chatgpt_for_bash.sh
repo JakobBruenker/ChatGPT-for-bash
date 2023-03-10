@@ -36,7 +36,6 @@ function check_no_command_input {
 " input
   if [[ -z "$input" ]]; then
     move_cursor_up
-    return 1
   else
     chat_hist+=("$question" "$classified_response")
     question="$input"
@@ -90,20 +89,25 @@ It's very important that you append \`CMD:N\` if your response is not a command,
   fi
 
   # Print the response and ask for user input
-  if [[ "$class" == "CMD:N" ]]; then
-    printf "\n" >&2
-    bold_start >&2
-    echo "$response" >&2
-    bold_end
-    printf "\n" >&2
+  if [[ -z "$response" ]]; then
+    echo "Empty response, please try a different prompt." >&2
     check_no_command_input
   else
-    printf "I think I can do that with the following command:\n\n  " >&2
-    bold_start
-    echo "$response" >&2
-    bold_end
-    printf "\n" >&2
-    check_command_input
+    if [[ "$class" == "CMD:N" ]]; then
+      printf "\n" >&2
+      bold_start >&2
+      echo "$response" >&2
+      bold_end
+      printf "\n" >&2
+      check_no_command_input
+    else
+      printf "I think I can do that with the following command:\n\n  " >&2
+      bold_start
+      echo "$response" >&2
+      bold_end
+      printf "\n" >&2
+      check_command_input
+    fi
   fi
 }
 
@@ -118,12 +122,24 @@ chat_hist=()
 # Check if question or API key is empty
 if [ -z "$question" ]; then
   echo "Error: Please provide a question" >&2
-  return 1
+  if [ "$0" = "$BASH_SOURCE" ]; then
+    # script is being called directly
+    exit 1
+  else
+    # script is being sourced
+    return 1
+  fi
 fi
 
 if [ -z "$api_key" ]; then
   echo "Error: Please set the OPENAI_API_KEY environment variable" >&2
-  return 1
+  if [ "$0" = "$BASH_SOURCE" ]; then
+    # script is being called directly
+    exit 1
+  else
+    # script is being sourced
+    return 1
+  fi
 fi
 
 generate_command
