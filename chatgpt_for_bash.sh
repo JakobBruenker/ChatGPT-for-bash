@@ -18,7 +18,7 @@ function bold_end {
 # Function to check user input when there was a command response
 function check_command_input {
   echo "Sound good? (Enter to accept, Ctrl-C to cancel, or just write more to refine your request)" >&2
-  read __chatgpt_for_bash_input
+  read -r __chatgpt_for_bash_input
   if [[ -z "$__chatgpt_for_bash_input" ]]; then
     move_cursor_up
     if [[ -z "$ZSH_VERSION" ]]; then
@@ -39,7 +39,7 @@ function check_command_input {
 # Function to check user input when there was no command response
 function check_no_command_input {
   echo "Press enter or Ctrl-C to cancel, or just write more to refine your request." >&2
-  read __chatgpt_for_bash_input
+  read -r __chatgpt_for_bash_input
   if [[ -z "$__chatgpt_for_bash_input" ]]; then
     move_cursor_up
   else
@@ -57,7 +57,7 @@ function generate_command {
 {\"role\": \"assistant\", \"content\": \"${__chatgpt_for_bash_chat_hist[$__chatgpt_for_bash_i+1]//\"/\\\"}\"},")
   done
   # replace newlines with \n
-  __chatgpt_for_bash_json_chat_hist_str=$(echo -n ${__chatgpt_for_bash_json_chat_hist[@]} | tr '\n' '\\n')
+  __chatgpt_for_bash_json_chat_hist_str=$(echo -n "${__chatgpt_for_bash_json_chat_hist[@]}" | tr '\n' '\\n')
 
   __chatgpt_for_bash_request="{
     \"model\": \"gpt-3.5-turbo\",
@@ -137,7 +137,7 @@ __chatgpt_for_bash_chat_hist=()
 # Check if question or API key is empty
 if [ -z "$__chatgpt_for_bash_question" ]; then
   echo "Error: Please provide a question" >&2
-  if [ "$0" = "$BASH_SOURCE" ]; then
+  if [ "$0" = "${BASH_SOURCE[0]}" ]; then
     # script is being called directly
     exit 1
   else
@@ -148,7 +148,7 @@ fi
 
 if [ -z "$__chatgpt_for_bash_api_key" ]; then
   echo "Error: Please set the OPENAI_API_KEY environment variable" >&2
-  if [ "$0" = "$BASH_SOURCE" ]; then
+  if [ "$0" = "${BASH_SOURCE[0]}" ]; then
     # script is being called directly
     exit 1
   else
