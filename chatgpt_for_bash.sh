@@ -68,7 +68,7 @@ You will not use code blocks. \
 If you cannot answer a prompt with a command, you will append \`CMD:N\` to the end of your response. \
 It's very important that you append \`CMD:N\` if your response is not a command, and that you append \`CMD:Y\` if your response *is* a command.\"},
       {\"role\": \"user\", \"content\": \"get my git commits from the last 7 days\"},
-      {\"role\": \"assistant\", \"content\": \"git log --author=\\\"$(git config user.name)\\\" --since=\\\"7 days ago\\\"CMD:Y\"},
+      {\"role\": \"assistant\", \"content\": \"git log --author=\\\"\$(git config user.name)\\\" --since=\\\"7 days ago\\\"CMD:Y\"},
       {\"role\": \"user\", \"content\": \"get current date with daterania\"},
       {\"role\": \"assistant\", \"content\": \"Sorry, I'm not familiar with daterania.CMD:N\"},
       {\"role\": \"user\", \"content\": \"i made it more robust, add current dir, commit and push\"},
