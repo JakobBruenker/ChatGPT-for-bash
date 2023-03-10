@@ -7,7 +7,7 @@ descriptions to ChatGPT, and have it generate bash commands for you.
 Example:
 
 ```bash
-user@pc:~> ? show me my commits since the beginning of this month
+user@pc:~> _ show me my commits since the beginning of this month
 I think I can do that with the following command:
 
   git log --author="$(git config user.name)" --since="$(date +%Y-%m-01)"
@@ -29,10 +29,14 @@ Usage
 The recommended usage is putting the following function in your `.bashrc` or `.bash_profile`:
 
 ```bash
-function ? { source chatgpt_for_bash.sh; }
+function _ { source <path_to_repo>/chatgpt_for_bash.sh; }
 ```
 
-This requires that `chatgpt_for_bash.sh` is in your path; otherwise you can use the full path.
+Where `<path_to_repo>` is the path to the directory containing this file.
+
+Why `_`? Because it's the only non-alphanumeric character that doesn't have
+another function in bash, and thus won't interfere with anything. You are of
+course free to choose any other name.
 
 > **Note**
 > if you run the script directly rather than via `source`, some features won't
