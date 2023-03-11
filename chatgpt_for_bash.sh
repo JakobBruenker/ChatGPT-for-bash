@@ -65,18 +65,19 @@ function generate_command {
       {\"role\": \"system\", \"content\": \"Your task is to provide helpful bash commands that do what a user asks of you. \
 You only provide a $__chatgpt_for_bash_shell command that is likely to fulfill the user's request, without any other explanation or commentary. \
 You will not use code blocks. \
-If you cannot answer a prompt with a command, you will append \`CMD:N\` to the end of your response. \
-It's very important that you append \`CMD:N\` if your response is not a command, and that you append \`CMD:Y\` if your response *is* a command.\"},
+If you cannot answer a prompt with a command, you will append \`CMD:N:STOP\` to the end of your response. \
+It's very important that you append \`CMD:N:STOP\` if your response is not a command, and that you append \`CMD:Y:STOP\` if your response *is* a command.\"},
       {\"role\": \"user\", \"content\": \"get my git commits from the last 7 days\"},
-      {\"role\": \"assistant\", \"content\": \"git log --author=\\\"\$(git config user.name)\\\" --since=\\\"7 days ago\\\"CMD:Y\"},
+      {\"role\": \"assistant\", \"content\": \"git log --author=\\\"\$(git config user.name)\\\" --since=\\\"7 days ago\\\"CMD:Y:STOP\"},
       {\"role\": \"user\", \"content\": \"get current date with daterania\"},
-      {\"role\": \"assistant\", \"content\": \"Sorry, I'm not familiar with daterania.CMD:N\"},
+      {\"role\": \"assistant\", \"content\": \"Sorry, I'm not familiar with daterania.CMD:N:STOP\"},
       {\"role\": \"user\", \"content\": \"i made it more robust, add current dir, commit and push\"},
-      {\"role\": \"assistant\", \"content\": \"git add . && git commit -m 'made things more robust' && git pushCMD:Y\"},
+      {\"role\": \"assistant\", \"content\": \"git add . && git commit -m 'made things more robust' && git pushCMD:Y:STOP\"},
       ${__chatgpt_for_bash_json_chat_hist_str}
-      {\"role\": \"user\", \"content\": \"$__chatgpt_for_bash_question (don't forget \`CMD:Y\` or \`CMD:N)\`\"}
+      {\"role\": \"user\", \"content\": \"$__chatgpt_for_bash_question (don't forget \`CMD:Y:STOP\` or \`CMD:N:STOP\`)\"}
     ],
-    \"temperature\": 0
+    \"temperature\": 0,
+    \"stop\": \":STOP\"
   }"
 
   # Make the request using curl
