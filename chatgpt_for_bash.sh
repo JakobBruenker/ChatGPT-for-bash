@@ -17,7 +17,7 @@ function bold_end {
 
 # Function to check user input when there was a command response
 function check_command_input {
-  echo "Sound good? (Enter to accept, Ctrl-C to cancel, or just write more to refine your request)" >&2
+  echo -E "Sound good? (Enter to accept, Ctrl-C to cancel, or just write more to refine your request)" >&2
   read -r __chatgpt_for_bash_input
   if [[ -z "$__chatgpt_for_bash_input" ]]; then
     move_cursor_up
@@ -38,7 +38,7 @@ function check_command_input {
 
 # Function to check user input when there was no command response
 function check_no_command_input {
-  echo "Press enter or Ctrl-C to cancel, or just write more to refine your request." >&2
+  echo -E "Press enter or Ctrl-C to cancel, or just write more to refine your request." >&2
   read -r __chatgpt_for_bash_input
   if [[ -z "$__chatgpt_for_bash_input" ]]; then
     move_cursor_up
@@ -57,7 +57,7 @@ function generate_command {
 {\"role\": \"assistant\", \"content\": \"${__chatgpt_for_bash_chat_hist[$__chatgpt_for_bash_i+1]//\"/\\\"}\"},")
   done
   # replace newlines with \n
-  __chatgpt_for_bash_json_chat_hist_str=$(echo -n "${__chatgpt_for_bash_json_chat_hist[@]}" | tr '\n' '\\n')
+  __chatgpt_for_bash_json_chat_hist_str=$(echo -E -n "${__chatgpt_for_bash_json_chat_hist[@]}" | tr '\n' '\\n')
 
   __chatgpt_for_bash_request="{
     \"model\": \"gpt-3.5-turbo\",
@@ -86,7 +86,7 @@ It's very important that you append \`CMD:N\` if your response is not a command,
     -d "$__chatgpt_for_bash_request" \
     https://api.openai.com/v1/chat/completions)
 
-  __chatgpt_for_bash_classified_response=$(echo "$__chatgpt_for_bash_response_raw" | jq -r '.choices[0].message.content')
+  __chatgpt_for_bash_classified_response=$(echo -E "$__chatgpt_for_bash_response_raw" | jq -r '.choices[0].message.content')
   if [[ "$__chatgpt_for_bash_classified_response" =~ CMD..$ ]]; then
     __chatgpt_for_bash_class="${__chatgpt_for_bash_classified_response: -5}"
     __chatgpt_for_bash_response="${__chatgpt_for_bash_classified_response%?????}"
@@ -97,20 +97,20 @@ It's very important that you append \`CMD:N\` if your response is not a command,
 
   # Print the response and ask for user input
   if [[ -z "$__chatgpt_for_bash_response" ]]; then
-    echo "Empty response, please try a different prompt." >&2
+    echo -E "Empty response, please try a different prompt." >&2
     check_no_command_input
   else
     if [[ "$__chatgpt_for_bash_class" == "CMD:N" ]]; then
       printf "\n" >&2
       bold_start >&2
-      echo "$__chatgpt_for_bash_response" >&2
+      echo -E "$__chatgpt_for_bash_response" >&2
       bold_end
       printf "\n" >&2
       check_no_command_input
     else
       printf "I think I can do that with the following command:\n\n  " >&2
       bold_start
-      echo "$__chatgpt_for_bash_response" >&2
+      echo -E "$__chatgpt_for_bash_response" >&2
       bold_end
       printf "\n" >&2
       check_command_input
@@ -136,7 +136,7 @@ __chatgpt_for_bash_chat_hist=()
 
 # Check if question or API key is empty
 if [ -z "$__chatgpt_for_bash_question" ]; then
-  echo "Error: Please provide a question" >&2
+  echo -E "Error: Please provide a question" >&2
   if [ "$0" = "${BASH_SOURCE[0]}" ]; then
     # script is being called directly
     exit 1
@@ -147,7 +147,7 @@ if [ -z "$__chatgpt_for_bash_question" ]; then
 fi
 
 if [ -z "$__chatgpt_for_bash_api_key" ]; then
-  echo "Error: Please set the OPENAI_API_KEY environment variable" >&2
+  echo -E "Error: Please set the OPENAI_API_KEY environment variable" >&2
   if [ "$0" = "${BASH_SOURCE[0]}" ]; then
     # script is being called directly
     exit 1
