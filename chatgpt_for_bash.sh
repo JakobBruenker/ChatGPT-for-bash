@@ -53,12 +53,13 @@ function check_no_command_input {
 function generate_command {
   __chatgpt_for_bash_json_chat_hist=()
   for ((__chatgpt_for_bash_i=0; __chatgpt_for_bash_i<${#__chatgpt_for_bash_chat_hist[@]}; __chatgpt_for_bash_i+=2)); do
-    __chatgpt_for_bash_json_chat_hist+=("{\"role\": \"user\", \"content\": \"${__chatgpt_for_bash_chat_hist[$__chatgpt_for_bash_i]//\"/\\\"}\"}, \
-{\"role\": \"assistant\", \"content\": \"${__chatgpt_for_bash_chat_hist[$__chatgpt_for_bash_i+1]//\"/\\\"}\"},")
+    __chatgpt_for_bash_json_chat_hist+=("{\"role\": \"user\", \"content\": $(echo -E ${__chatgpt_for_bash_chat_hist[@]:$__chatgpt_for_bash_i:1} | jq -R '.')}, \
+{\"role\": \"assistant\", \"content\": $(echo -E ${__chatgpt_for_bash_chat_hist[@]:$__chatgpt_for_bash_i+1:1}:STOP | jq -R '.')},")
   done
   # replace newlines with \n
   __chatgpt_for_bash_json_chat_hist_str=$(echo -E -n "${__chatgpt_for_bash_json_chat_hist[@]}" | tr '\n' '\\n')
 
+  __chatgpt_for_bash_escaped_question=$(echo -E "$__chatgpt_for_bash_question" | jq -R '.' | cut -c 2- | rev | cut -c 2- | rev)
   __chatgpt_for_bash_request="{
     \"model\": \"gpt-3.5-turbo\",
     \"messages\": [
@@ -74,7 +75,7 @@ It's very important that you append \`CMD:N:STOP\` if your response is not a com
       {\"role\": \"user\", \"content\": \"i made it more robust, add current dir, commit and push\"},
       {\"role\": \"assistant\", \"content\": \"git add . && git commit -m 'made things more robust' && git pushCMD:Y:STOP\"},
       ${__chatgpt_for_bash_json_chat_hist_str}
-      {\"role\": \"user\", \"content\": \"$__chatgpt_for_bash_question (don't forget \`CMD:Y:STOP\` or \`CMD:N:STOP\`)\"}
+      {\"role\": \"user\", \"content\": \"$__chatgpt_for_bash_escaped_question (don't forget \`CMD:Y:STOP\` or \`CMD:N:STOP\`)\"}
     ],
     \"temperature\": 0,
     \"stop\": \":STOP\"
