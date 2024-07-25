@@ -2,7 +2,6 @@
 
 function move_cursor_up {
   if command -v tput >/dev/null 2>&1; then
-    # if tput is available, use it to move the cursor to get rid of a blank line
     tput cuu1 >&2
   fi
 }
@@ -15,135 +14,90 @@ function bold_end {
   printf "\033[0m" >&2
 }
 
-# Function to check user input when there was a command response
 function check_command_input {
   echo -E "Sound good? (Enter to accept, Ctrl-C to cancel, or just write more to refine your request)" >&2
   read -r __chatgpt_for_bash_input
   if [[ -z "$__chatgpt_for_bash_input" ]]; then
     move_cursor_up
     if [[ -z "$ZSH_VERSION" ]]; then
-      # if bash
-      history -s "$__chatgpt_for_bash_response"
+      history -s "$__chatgpt_for_bash_command"
     else
-      # if zsh
-      print -s "$__chatgpt_for_bash_response"
+      print -s "$__chatgpt_for_bash_command"
     fi
-    eval "$__chatgpt_for_bash_response"
+    eval "$__chatgpt_for_bash_command"
   else
-    __chatgpt_for_bash_chat_hist+=("$__chatgpt_for_bash_question" "$__chatgpt_for_bash_classified_response")
+    __chatgpt_for_bash_chat_hist+=("$__chatgpt_for_bash_question" "$__chatgpt_for_bash_response")
     __chatgpt_for_bash_question="$__chatgpt_for_bash_input"
     generate_command
   fi
 }
 
-# Function to check user input when there was no command response
-function check_no_command_input {
-  echo -E "Press enter or Ctrl-C to cancel, or just write more to refine your request." >&2
-  read -r __chatgpt_for_bash_input
-  if [[ -z "$__chatgpt_for_bash_input" ]]; then
-    move_cursor_up
-  else
-    __chatgpt_for_bash_chat_hist+=("$__chatgpt_for_bash_question" "$__chatgpt_for_bash_classified_response")
-    __chatgpt_for_bash_question="$__chatgpt_for_bash_input"
-    generate_command
-  fi
-}
-
-# Function to query the API
 function generate_command {
   __chatgpt_for_bash_json_chat_hist=()
   for ((__chatgpt_for_bash_i=0; __chatgpt_for_bash_i<${#__chatgpt_for_bash_chat_hist[@]}; __chatgpt_for_bash_i+=2)); do
     __chatgpt_for_bash_json_chat_hist+=("{\"role\": \"user\", \"content\": $(echo -E ${__chatgpt_for_bash_chat_hist[@]:$__chatgpt_for_bash_i:1} | jq -R '.')}, \
-{\"role\": \"assistant\", \"content\": $(echo -E ${__chatgpt_for_bash_chat_hist[@]:$__chatgpt_for_bash_i+1:1}:STOP | jq -R '.')},")
+{\"role\": \"assistant\", \"content\": $(echo -E ${__chatgpt_for_bash_chat_hist[@]:$__chatgpt_for_bash_i+1:1} | jq -R '.')},")
   done
-  # replace newlines with \n
   __chatgpt_for_bash_json_chat_hist_str=$(echo -E -n "${__chatgpt_for_bash_json_chat_hist[@]}" | tr '\n' '\\n')
 
   __chatgpt_for_bash_escaped_question=$(echo -E "$__chatgpt_for_bash_question" | jq -R '.' | cut -c 2- | rev | cut -c 2- | rev)
   __chatgpt_for_bash_request="{
     \"model\": \"gpt-4o-mini\",
+    \"response_format\": { \"type\": \"json_object\" },
     \"messages\": [
-      {\"role\": \"system\", \"content\": \"Your task is to provide helpful bash commands that do what a user asks of you. \
-You only provide a $__chatgpt_for_bash_shell command that is likely to fulfill the user's request, without any other explanation or commentary. \
-You will not use code blocks. \
-If you cannot answer a prompt with a command, you will append \`CMD:N:STOP\` to the end of your response. \
-It's very important that you append \`CMD:N:STOP\` if your response is not a command, and that you append \`CMD:Y:STOP\` if your response *is* a command.\"},
+      {\"role\": \"system\", \"content\": \"You are a helpful assistant designed to output JSON. Your task is to provide helpful bash commands that do what a user asks of you. Always return a JSON object with 'command' and 'explanation' fields. The explanation should be very brief, 1 sentence.\"},
       {\"role\": \"user\", \"content\": \"get my git commits from the last 7 days\"},
-      {\"role\": \"assistant\", \"content\": \"git log --author=\\\"\$(git config user.name)\\\" --since=\\\"7 days ago\\\"CMD:Y:STOP\"},
+      {\"role\": \"assistant\", \"content\": \"{\\\"command\\\": \\\"git log --author=\\\\\\\"\$(git config user.name)\\\\\\\" --since=\\\\\\\"7 days ago\\\\\\\"\\\", \\\"explanation\\\": \\\"This command retrieves your git commits from the past week.\\\"}\"},
       {\"role\": \"user\", \"content\": \"get current date with daterania\"},
-      {\"role\": \"assistant\", \"content\": \"Sorry, I'm not familiar with daterania.CMD:N:STOP\"},
+      {\"role\": \"assistant\", \"content\": \"{\\\"command\\\": \\\"\\\", \\\"explanation\\\": \\\"Sorry, I'm not familiar with daterania and cannot provide a command for it.\\\"}\"},
       {\"role\": \"user\", \"content\": \"i made it more robust, add current dir, commit and push\"},
-      {\"role\": \"assistant\", \"content\": \"git add . && git commit -m 'made things more robust' && git pushCMD:Y:STOP\"},
+      {\"role\": \"assistant\", \"content\": \"{\\\"command\\\": \\\"git add . && git commit -m 'made things more robust' && git push\\\", \\\"explanation\\\": \\\"This command stages all changes, commits with a message, and pushes to the remote repository.\\\"}\"},
       ${__chatgpt_for_bash_json_chat_hist_str}
-      {\"role\": \"user\", \"content\": \"$__chatgpt_for_bash_escaped_question (don't forget \`CMD:Y:STOP\` or \`CMD:N:STOP\`)\"}
+      {\"role\": \"user\", \"content\": \"$__chatgpt_for_bash_escaped_question\"}
     ],
-    \"temperature\": 0,
-    \"stop\": \":STOP\"
+    \"temperature\": 0
   }"
 
-  # Make the request using curl
   __chatgpt_for_bash_response_raw=$(curl -s -X POST \
     -H "Content-Type: application/json" \
     -H "Authorization: Bearer $__chatgpt_for_bash_api_key" \
     -d "$__chatgpt_for_bash_request" \
     https://api.openai.com/v1/chat/completions)
 
-  __chatgpt_for_bash_classified_response=$(echo -E "$__chatgpt_for_bash_response_raw" | jq -r '.choices[0].message.content')
-  if [[ "$__chatgpt_for_bash_classified_response" =~ CMD..$ ]]; then
-    __chatgpt_for_bash_class="${__chatgpt_for_bash_classified_response: -5}"
-    __chatgpt_for_bash_response="${__chatgpt_for_bash_classified_response%?????}"
-  else
-    __chatgpt_for_bash_class="null"
-    __chatgpt_for_bash_response="$__chatgpt_for_bash_classified_response"
-  fi
+  __chatgpt_for_bash_response=$(echo -E "$__chatgpt_for_bash_response_raw" | jq -r '.choices[0].message.content')
+  __chatgpt_for_bash_command=$(echo -E "$__chatgpt_for_bash_response" | jq -r '.command')
+  __chatgpt_for_bash_explanation=$(echo -E "$__chatgpt_for_bash_response" | jq -r '.explanation')
 
-  # Print the response and ask for user input
-  if [[ -z "$__chatgpt_for_bash_response" ]]; then
+  if [[ -z "$__chatgpt_for_bash_command" ]]; then
     echo -E "Empty response, please try a different prompt." >&2
-    check_no_command_input
+    read -r __chatgpt_for_bash_input
+    __chatgpt_for_bash_question="$__chatgpt_for_bash_input"
+    generate_command
   else
-    if [[ "$__chatgpt_for_bash_class" == "CMD:N" ]]; then
-      printf "\n" >&2
-      bold_start >&2
-      echo -E "$__chatgpt_for_bash_response" >&2
-      bold_end
-      printf "\n" >&2
-      check_no_command_input
-    else
-      printf "I think I can do that with the following command:\n\n  " >&2
-      bold_start
-      echo -E "$__chatgpt_for_bash_response" >&2
-      bold_end
-      printf "\n" >&2
-      check_command_input
-    fi
+    printf "I think I can do that with the following command:\n\n  " >&2
+    bold_start
+    echo -E "$__chatgpt_for_bash_command" >&2
+    bold_end
+    printf "\n\nExplanation: $__chatgpt_for_bash_explanation\n\n" >&2
+    check_command_input
   fi
 }
 
-# Find out what shell we're running in
 if [[ -n "$ZSH_VERSION" ]]; then
   __chatgpt_for_bash_shell="zsh"
 else
-  # just use bash as fallback
   __chatgpt_for_bash_shell="bash"
 fi
 
-# Join the command line arguments into a single string
 __chatgpt_for_bash_question="$*"
-
-# Get the API key from the environment variable
 __chatgpt_for_bash_api_key="$OPENAI_API_KEY"
-
 __chatgpt_for_bash_chat_hist=()
 
-# Check if question or API key is empty
 if [ -z "$__chatgpt_for_bash_question" ]; then
   echo -E "Error: Please provide a question" >&2
   if [ "$0" = "${BASH_SOURCE[0]}" ]; then
-    # script is being called directly
     exit 1
   else
-    # script is being sourced
     return 1
   fi
 fi
@@ -151,10 +105,8 @@ fi
 if [ -z "$__chatgpt_for_bash_api_key" ]; then
   echo -E "Error: Please set the OPENAI_API_KEY environment variable" >&2
   if [ "$0" = "${BASH_SOURCE[0]}" ]; then
-    # script is being called directly
     exit 1
   else
-    # script is being sourced
     return 1
   fi
 fi
