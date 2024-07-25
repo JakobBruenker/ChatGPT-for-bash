@@ -61,7 +61,7 @@ function generate_command {
 
   __chatgpt_for_bash_escaped_question=$(echo -E "$__chatgpt_for_bash_question" | jq -R '.' | cut -c 2- | rev | cut -c 2- | rev)
   __chatgpt_for_bash_request="{
-    \"model\": \"gpt-3.5-turbo\",
+    \"model\": \"gpt-4o-mini\",
     \"messages\": [
       {\"role\": \"system\", \"content\": \"Your task is to provide helpful bash commands that do what a user asks of you. \
 You only provide a $__chatgpt_for_bash_shell command that is likely to fulfill the user's request, without any other explanation or commentary. \
